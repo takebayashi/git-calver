@@ -1,0 +1,124 @@
+name: Release
+
+on:
+  repository_dispatch:
+    types: [build]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        target:
+          - x86_64-unknown-linux-gnu
+          - x86_64-apple-darwin
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+          - target: x86_64-apple-darwin
+            os: macos-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: master
+      - name: Install toolchains
+        uses: actions-rs/toolchain@v1
+        with:
+          target: ${{ matrix.target }}
+          toolchain: stable
+          default: true
+      - name: Build app
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target=${{ matrix.target }}
+      - name: Run tests
+        run: cargo test --verbose
+      - name: Archive artifacts
+        run: zip --junk-paths git-calver-${{ matrix.target }} target/${{ matrix.target }}/release/git-calver{,.exe}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: build-${{ matrix.target }}
+          path: git-calver-${{ matrix.target }}.zip
+  create-release:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: master
+      - name: Fetch all tags
+        run: |
+          git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+          git fetch --prune --unshallow
+      - name: Install app
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: --path .
+      - name: Get next version
+        id: next-version
+        run: |
+          echo ::set-output name=version::`git calver next`
+      - name: Bump cargo
+        run: |
+          cargo install cargo-bump
+          git config --local user.name "$GITHUB_ACTOR"
+          git config --local user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          cargo bump `git calver next`
+          git add Cargo.toml Cargo.lock
+          git commit -m "Bump to `git calver next`"
+          git push origin master
+      - name: Create release
+        id: create-release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.next-version.outputs.version }}
+          release_name: Release ${{ steps.next-version.outputs.version }}
+          draft: false
+          prerelease: false
+      - name: Save upload URL
+        run: |
+          echo '${{ steps.create-release.outputs.upload_url }}' > release_upload_url.txt
+      - name: Upload saved upload URL
+        uses: actions/upload-artifact@v1
+        with:
+          name: create-release
+          path: release_upload_url.txt
+  upload-release:
+    strategy:
+      matrix:
+        target:
+          - x86_64-unknown-linux-gnu
+          - x86_64-apple-darwin
+    needs: [create-release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download saved upload URL
+        uses: actions/download-artifact@v1
+        with:
+          name: create-release
+      - name: Retrieve saved upload URL
+        id: upload-url
+        run: |
+          echo "::set-output name=url::$(cat create-release/release_upload_url.txt)"
+      - name: Fetch artifacts
+        uses: actions/download-artifact@v1
+        with:
+          name: build-${{ matrix.target }}
+      - name: Upload artifacts to release
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.upload-url.outputs.url }}
+          asset_path: build-${{ matrix.target }}/git-calver-${{ matrix.target }}.zip
+          asset_name: git-calver-${{ matrix.target }}.zip
+          asset_content_type: application/zip
+      - name: Upload to crates.io
+        run: cargo publish --token ${{ secrets.CRATES_IO_TOKEN }}
