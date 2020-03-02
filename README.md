@@ -2,6 +2,10 @@
 
 `git calver` is a command line utility to manipulate git tags as [CalVer](https://calver.org).
 
+## Demo
+
+[![asciicast](https://asciinema.org/a/306537.svg)](https://asciinema.org/a/306537)
+
 ## Features
 
 * List all versions: `git calver all`
