@@ -73,6 +73,8 @@ jobs:
           git add Cargo.toml Cargo.lock
           git commit -m "Bump to `git calver next`"
           git push origin master
+      - name: Upload to crates.io
+        run: cargo publish --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Create release
         id: create-release
         uses: actions/create-release@v1.0.0
@@ -125,8 +127,3 @@ jobs:
           asset_path: build-${{ matrix.target }}/git-calver-${{ matrix.target }}.zip
           asset_name: git-calver-${{ matrix.target }}.zip
           asset_content_type: application/zip
-      - name: Clean workspace
-        run: |
-          rm -rf create-release build-${{ matrix.target }}
-      - name: Upload to crates.io
-        run: cargo publish --token ${{ secrets.CRATES_IO_TOKEN }}
