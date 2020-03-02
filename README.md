@@ -15,6 +15,14 @@
 
 ## Installation
 
+### Using brew
+
+```
+brew install takebayashi/git-calver/git-calver
+```
+
+### Using cargo
+
 ```
 cargo install git-calver
 ```
