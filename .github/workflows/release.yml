@@ -124,5 +124,8 @@ jobs:
           asset_path: build-${{ matrix.target }}/git-calver-${{ matrix.target }}.zip
           asset_name: git-calver-${{ matrix.target }}.zip
           asset_content_type: application/zip
+      - name: Clean workspace
+        run: |
+          rm -rf create-release build-${{ matrix.target }}
       - name: Upload to crates.io
         run: cargo publish --token ${{ secrets.CRATES_IO_TOKEN }}
