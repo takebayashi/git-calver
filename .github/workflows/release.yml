@@ -99,6 +99,10 @@ jobs:
     needs: [create-release]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: master
       - name: Download saved upload URL
         uses: actions/download-artifact@v1
         with:
