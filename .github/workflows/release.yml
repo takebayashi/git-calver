@@ -69,6 +69,7 @@ jobs:
           git config --local user.name "$GITHUB_ACTOR"
           git config --local user.email "${GITHUB_ACTOR}@users.noreply.github.com"
           cargo bump `git calver next`
+          cargo update -p git-calver
           git add Cargo.toml Cargo.lock
           git commit -m "Bump to `git calver next`"
           git push origin master
