@@ -58,19 +58,33 @@ impl<'a> Releaser<'a> {
         }
     }
 
-    pub fn bump(&self, message: &str) -> Result<CalVer, Error> {
+    pub fn bump(&self, message: &str, lightweught: bool) -> Result<CalVer, Error> {
         let v = self.next_version();
-        self.bump_to(v, message)
+        self.bump_to(v, message, lightweught)
     }
 
-    pub fn bump_to(&self, version: CalVer, message: &str) -> Result<CalVer, Error> {
-        match self.repo.tag(
-            format!("{}", version).as_str(),
-            self.repo.head()?.peel_to_commit()?.as_object(),
-            &self.repo.signature()?,
-            message,
-            false,
-        ) {
+    pub fn bump_to(
+        &self,
+        version: CalVer,
+        message: &str,
+        lightweught: bool,
+    ) -> Result<CalVer, Error> {
+        let result = if lightweught {
+            self.repo.tag_lightweight(
+                format!("{}", version).as_str(),
+                self.repo.head()?.peel_to_commit()?.as_object(),
+                false,
+            )
+        } else {
+            self.repo.tag(
+                format!("{}", version).as_str(),
+                self.repo.head()?.peel_to_commit()?.as_object(),
+                &self.repo.signature()?,
+                message,
+                false,
+            )
+        };
+        match result {
             Ok(_) => Ok(version),
             Err(err) => Err(err),
         }

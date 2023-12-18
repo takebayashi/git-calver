@@ -14,7 +14,10 @@ fn cmd_next(_: &ArgMatches) -> Result<(), Error> {
 }
 
 fn cmd_tag_next(opt: &ArgMatches) -> Result<(), Error> {
-    let message = opt.value_of("message").expect("message is required.");
+    let (lightweught, message) = match opt.value_of("message") {
+        Some(message) => (false, message),
+        None => (true, ""),
+    };
     let repo = Repository::open_from_env().expect("failed to open repository.");
     let releaser = Releaser::new(&repo);
     if !releaser.is_releasable() {
@@ -25,7 +28,7 @@ fn cmd_tag_next(opt: &ArgMatches) -> Result<(), Error> {
         );
         return Ok(());
     }
-    match releaser.bump(message) {
+    match releaser.bump(message, lightweught) {
         Ok(v) => println!("{}", v),
         Err(err) => println!("{}", err),
     };

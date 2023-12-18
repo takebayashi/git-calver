@@ -11,7 +11,7 @@
 * List all versions: `git calver all`
 * Show the latest version: `git calver current`
 * Show the next version: `git calver next`
-* Create a new tag with the next version: `git tag-next -m "New Release"`
+* Create a new tag with the next version: `git tag-next` (lightweight tag) or `git tag-next -m "New Release"` (annotated tag)
 
 ## Installation
 
