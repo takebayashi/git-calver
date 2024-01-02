@@ -71,13 +71,13 @@ fn main() -> Result<(), Error> {
         );
     let matches = app.get_matches();
     if let Some(opt) = matches.subcommand_matches("all") {
-        cmd_all(&opt)
+        cmd_all(opt)
     } else if let Some(opt) = matches.subcommand_matches("current") {
-        cmd_current(&opt)
+        cmd_current(opt)
     } else if let Some(opt) = matches.subcommand_matches("next") {
-        cmd_next(&opt)
+        cmd_next(opt)
     } else if let Some(opt) = matches.subcommand_matches("tag-next") {
-        cmd_tag_next(&opt)
+        cmd_tag_next(opt)
     } else {
         Err(Error::from_str("unknown command"))
     }

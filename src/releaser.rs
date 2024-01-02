@@ -49,8 +49,7 @@ impl<'a> Releaser<'a> {
             .repo
             .head()
             .ok()
-            .map(|head| head.peel_to_commit().ok())
-            .flatten();
+            .and_then(|head| head.peel_to_commit().ok());
         if let Some(commit) = head_commit {
             commit.id() != last_id || last_id == Oid::zero()
         } else {

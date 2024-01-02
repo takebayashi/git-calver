@@ -38,29 +38,27 @@ impl RepositoryWithRelease for Repository {
                     .map(|s| s.to_string())
                     .collect::<Vec<_>>()
             })
-            .unwrap_or_else(|| vec![]);
+            .unwrap_or_default();
         let all_releases = tag_names
             .iter()
             .flat_map(|t| t.calver())
             .flat_map(|v| {
                 self.resolve_reference_from_short_name(v.to_string().as_str())
                     .ok()
-                    .map(|r| r.peel_to_commit().ok())
-                    .flatten()
+                    .and_then(|r| r.peel_to_commit().ok())
                     .map(|c| Release {
                         commit_id: c.id(),
                         version: v,
                     })
             })
             .collect::<Vec<_>>();
-        if let Some(head) = self.head().ok().map(|r| r.peel_to_commit().ok()).flatten() {
+        if let Some(head) = self.head().ok().and_then(|r| r.peel_to_commit().ok()) {
             let mut releases = self
                 .iter_commit_id(&head)
                 .flat_map(|cid| {
                     all_releases
                         .iter()
-                        .filter(|r| cid == r.commit_id)
-                        .map(|&r| r)
+                        .filter(|r| cid == r.commit_id).copied()
                         .next()
                 })
                 .collect::<Vec<_>>();
