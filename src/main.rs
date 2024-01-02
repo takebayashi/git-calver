@@ -1,4 +1,4 @@
-use clap::{App, Arg, ArgMatches, SubCommand};
+use clap::{Arg, ArgMatches, Command};
 use git2::Error;
 use git2::Repository;
 
@@ -14,8 +14,8 @@ fn cmd_next(_: &ArgMatches) -> Result<(), Error> {
 }
 
 fn cmd_tag_next(opt: &ArgMatches) -> Result<(), Error> {
-    let (lightweught, message) = match opt.value_of("message") {
-        Some(message) => (false, message),
+    let (lightweught, message) = match opt.get_one::<String>("message") {
+        Some(message) => (false, message.as_str()),
         None => (true, ""),
     };
     let repo = Repository::open_from_env().expect("failed to open repository.");
@@ -55,20 +55,19 @@ fn cmd_all(_: &ArgMatches) -> Result<(), Error> {
 }
 
 fn main() -> Result<(), Error> {
-    let app = App::new("git calver")
-        .subcommand(SubCommand::with_name("all").about("get all versions of current tree"))
-        .subcommand(SubCommand::with_name("current").about("get latest version of current tree"))
-        .subcommand(SubCommand::with_name("next").about("get next version"))
+    let app = Command::new("git calver")
+        .subcommand_required(true)
+        .subcommand(Command::new("all").about("get all versions of current tree"))
+        .subcommand(Command::new("current").about("get latest version of current tree"))
+        .subcommand(Command::new("next").about("get next version"))
         .subcommand(
-            SubCommand::with_name("tag-next")
-                .about("tag next version")
-                .arg(
-                    Arg::with_name("message")
-                        .help("tag message")
-                        .takes_value(true)
-                        .short("m")
-                        .long("message"),
-                ),
+            Command::new("tag-next").about("tag next version").arg(
+                Arg::new("message")
+                    .help("tag message")
+                    .num_args(1)
+                    .short('m')
+                    .long("message"),
+            ),
         );
     let matches = app.get_matches();
     if let Some(opt) = matches.subcommand_matches("all") {
@@ -80,7 +79,6 @@ fn main() -> Result<(), Error> {
     } else if let Some(opt) = matches.subcommand_matches("tag-next") {
         cmd_tag_next(&opt)
     } else {
-        println!("{}", matches.usage());
-        Ok(())
+        Err(Error::from_str("unknown command"))
     }
 }

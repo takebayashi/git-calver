@@ -15,4 +15,4 @@ categories = ["command-line-utilities"]
 [dependencies]
 git2 = { version = "0.18.1", default-features = false, features = ["vendored-openssl"] }
 chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
-clap = "2.20.3"
+clap = "4.4.12"
