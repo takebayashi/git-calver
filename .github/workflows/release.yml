@@ -36,7 +36,7 @@ jobs:
       - name: Archive artifacts
         run: |
           cargo install --locked cargo-about
-          cargo about generate --output target/${{ matrix.target }}/release/NOTICE about.hbs
+          cargo about generate --output-file target/${{ matrix.target }}/release/NOTICE about.hbs
           zip --junk-paths git-calver-${{ matrix.target }} target/${{ matrix.target }}/release/git-calver{,.exe} target/${{ matrix.target }}/release/NOTICE
       - name: Upload artifacts
         uses: actions/upload-artifact@v1
