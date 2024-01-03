@@ -58,7 +58,8 @@ impl RepositoryWithRelease for Repository {
                 .flat_map(|cid| {
                     all_releases
                         .iter()
-                        .filter(|r| cid == r.commit_id).copied()
+                        .filter(|r| cid == r.commit_id)
+                        .copied()
                         .next()
                 })
                 .collect::<Vec<_>>();
