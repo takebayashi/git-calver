@@ -1,0 +1,7 @@
+accepted = [
+    "Apache-2.0",
+    "MIT",
+    "Unicode-DFS-2016",
+]
+ignore-build-dependencies = true
+ignore-dev-dependencies = true

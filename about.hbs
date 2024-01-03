@@ -1,0 +1,20 @@
+
+# NOTICE
+
+This software includes the following open source softwares.
+
+{{#each licenses}}
+---
+
+## Softwares
+
+The following softwares are licensed under the {{name}}.
+
+{{#each used_by}}
+* {{crate.name}} {{crate.version}} ({{#if crate.repository}} {{crate.repository}} {{else}} https://crates.io/crates/{{crate.name}} {{/if}})
+{{/each}}
+
+## License
+
+{{{text}}}
+{{/each}}
