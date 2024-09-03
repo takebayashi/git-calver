@@ -108,7 +108,7 @@ jobs:
         with:
           ref: master
       - name: Download saved upload URL
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4.1.7
         with:
           name: create-release
       - name: Retrieve saved upload URL
@@ -116,7 +116,7 @@ jobs:
         run: |
           echo "::set-output name=url::$(cat create-release/release_upload_url.txt)"
       - name: Fetch artifacts
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4.1.7
         with:
           name: build-${{ matrix.target }}
       - name: Upload artifacts to release
