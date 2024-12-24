@@ -1,12 +1,8 @@
-use chrono::prelude::Datelike;
-use chrono::prelude::Local;
-use chrono::DateTime;
 use git2::Error;
 use git2::Oid;
 use git2::Repository;
 
 use crate::calver::CalVer;
-use crate::calver::ToCalVer;
 use crate::repo_release::Release;
 use crate::repo_release::RepositoryWithRelease;
 
@@ -26,23 +22,9 @@ impl<'a> Releaser<'a> {
     }
 
     pub fn next_version(&self) -> CalVer {
-        self.next_version_of(self.last_release().version)
+        self.last_release().version.next_version()
     }
 
-    pub fn next_version_of(&self, current: CalVer) -> CalVer {
-        let t: DateTime<Local> = Local::now();
-        let date_ver = format!("{}.{}", t.year() % 100, t.month());
-        let mut i = 0;
-        loop {
-            let v = format!("{}.{}", date_ver, i)
-                .calver()
-                .unwrap_or_else(|| CalVer::new(i));
-            if v > current {
-                return v;
-            }
-            i += 1;
-        }
-    }
     pub fn is_releasable(&self) -> bool {
         let last_id = self.last_release().commit_id;
         let head_commit = self
