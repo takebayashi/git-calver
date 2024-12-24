@@ -39,18 +39,18 @@ impl<'a> Releaser<'a> {
         }
     }
 
-    pub fn bump(&self, message: &str, lightweught: bool) -> Result<CalVer, Error> {
+    pub fn bump(&self, message: &str, lightweight: bool) -> Result<CalVer, Error> {
         let v = self.next_version();
-        self.bump_to(v, message, lightweught)
+        self.bump_to(v, message, lightweight)
     }
 
     pub fn bump_to(
         &self,
         version: CalVer,
         message: &str,
-        lightweught: bool,
+        lightweight: bool,
     ) -> Result<CalVer, Error> {
-        let result = if lightweught {
+        let result = if lightweight {
             self.repo.tag_lightweight(
                 format!("{}", version).as_str(),
                 self.repo.head()?.peel_to_commit()?.as_object(),

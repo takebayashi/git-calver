@@ -14,7 +14,7 @@ fn cmd_next(_: &ArgMatches) -> Result<(), Error> {
 }
 
 fn cmd_tag_next(opt: &ArgMatches) -> Result<(), Error> {
-    let (lightweught, message) = match opt.get_one::<String>("message") {
+    let (lightweight, message) = match opt.get_one::<String>("message") {
         Some(message) => (false, message.as_str()),
         None => (true, ""),
     };
@@ -28,7 +28,7 @@ fn cmd_tag_next(opt: &ArgMatches) -> Result<(), Error> {
         );
         return Ok(());
     }
-    match releaser.bump(message, lightweught) {
+    match releaser.bump(message, lightweight) {
         Ok(v) => println!("{}", v),
         Err(err) => println!("{}", err),
     };
