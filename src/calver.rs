@@ -1,8 +1,8 @@
 use std::fmt;
 
-use chrono::prelude::Datelike;
-use chrono::prelude::Local;
 use chrono::DateTime;
+use chrono::Datelike;
+use chrono::Local;
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Eq, Ord)]
 pub struct CalVer {
@@ -77,6 +77,7 @@ impl ToCalVer for String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chrono::NaiveDate;
 
     #[test]
     fn string_to_calver() {
@@ -104,9 +105,12 @@ mod tests {
         // same month
         assert_eq!(
             String::from("20.2.1").calver().unwrap().next_version_at(
-                DateTime::parse_from_rfc3339("2020-02-01T00:00:00+09:00")
+                NaiveDate::from_ymd_opt(2020, 2, 1)
                     .unwrap()
-                    .into()
+                    .and_hms_opt(0, 0, 0)
+                    .unwrap()
+                    .and_local_timezone(Local)
+                    .unwrap()
             ),
             CalVer {
                 year: 2020,
@@ -118,9 +122,12 @@ mod tests {
         // next month
         assert_eq!(
             String::from("20.2.1").calver().unwrap().next_version_at(
-                DateTime::parse_from_rfc3339("2020-03-01T00:00:00+09:00")
+                NaiveDate::from_ymd_opt(2020, 3, 1)
                     .unwrap()
-                    .into()
+                    .and_hms_opt(0, 0, 0)
+                    .unwrap()
+                    .and_local_timezone(Local)
+                    .unwrap()
             ),
             CalVer {
                 year: 2020,
@@ -132,9 +139,12 @@ mod tests {
         // next year
         assert_eq!(
             String::from("20.2.1").calver().unwrap().next_version_at(
-                DateTime::parse_from_rfc3339("2021-02-01T00:00:00+09:00")
+                NaiveDate::from_ymd_opt(2021, 2, 1)
                     .unwrap()
-                    .into()
+                    .and_hms_opt(0, 0, 0)
+                    .unwrap()
+                    .and_local_timezone(Local)
+                    .unwrap()
             ),
             CalVer {
                 year: 2021,
